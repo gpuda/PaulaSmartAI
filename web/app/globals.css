@@ -1,0 +1,78 @@
+@import "tailwindcss";
+
+:root {
+  --background: #050819;
+  --foreground: #f9fafb;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #050819;
+    --foreground: #f9fafb;
+  }
+}
+
+body {
+  background: radial-gradient(circle at top, #1d1b3f 0, #050819 55%);
+  color: var(--foreground);
+}
+
+.bg-radial {
+  background: radial-gradient(circle at top, #31245b 0, #050819 55%);
+}
+
+.bg-cat-glow {
+  background: radial-gradient(circle, rgba(244, 114, 182, 0.55), rgba(129, 140, 248, 0.1));
+}
+
+.floating-cat {
+  animation: floatCat 4s ease-in-out infinite;
+}
+
+@keyframes floatCat {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+.animate-soft-glow {
+  animation: softGlow 3.5s ease-in-out infinite;
+}
+
+@keyframes softGlow {
+  0%,
+  100% {
+    text-shadow: 0 0 14px rgba(244, 114, 182, 0.5);
+  }
+  50% {
+    text-shadow: 0 0 22px rgba(56, 189, 248, 0.9);
+  }
+}
+
+.message-fade-in {
+  animation: messageFadeIn 0.28s ease-out;
+}
+
+@keyframes messageFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(4px) scale(0.99);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}

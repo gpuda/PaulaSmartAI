@@ -1,0 +1,15 @@
+# Python
+api/.venv/
+api/.venv/**
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Node
+web/node_modules/
+web/.next/
+
+# env
+.env
+.env.local
