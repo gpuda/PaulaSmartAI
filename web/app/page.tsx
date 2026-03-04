@@ -18,6 +18,11 @@ const SUGGESTIONS = [
   "Ispricaj mi kratku zabavnu pricu",
 ];
 
+// Base URL for API (Vercel prod via env var, local fallback)
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/+$/, "") ||
+  "http://localhost:8000";
+
 function CatMascot() {
   return (
     <div className="relative h-20 w-20 floating-cat">
@@ -182,10 +187,12 @@ export default function Home() {
       content: "",
     };
 
+    // NOTE: we append locally but `messages` state is still previous snapshot in this tick
     setMessages((prev) => [...prev, userMessage, assistantMessage]);
 
     try {
-      const history = messages
+      // Build history from existing messages PLUS the new user message (so memory is consistent)
+      const history = [...messages, userMessage]
         .slice(-10)
         .map((m) => ({ role: m.role, content: m.content }));
 
@@ -198,7 +205,7 @@ export default function Home() {
       // Only for RAG we pass top_k (optional)
       if (mode === "rag") payload.top_k = 5;
 
-      const res = await fetch("http://localhost:8000/chat_router", {
+      const res = await fetch(`${API_BASE}/chat_router`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -286,7 +293,6 @@ export default function Home() {
               doneStreaming = true;
               break;
             } else if (type === "error" && "message" in evt) {
-              // optional: backend can emit error
               const msg = String((evt as { message?: string }).message ?? "");
               setError(msg || "Dogodila se greska u streamu.");
             }
