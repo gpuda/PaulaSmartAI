@@ -43,12 +43,28 @@ TOP_K = int(os.getenv("RAG_TOP_K", "5"))
 # =========================
 app = FastAPI(title="test_app_agentic_rag")
 
+# -------------------------
+# CORS (LOCAL + VERCEL)
+# -------------------------
+# Lokalni dev
+DEFAULT_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+
+# Opcionalno: mozes rucno dodati tocne origine preko env var:
+# CORS_ORIGINS="https://paula-smart-ai.vercel.app,https://paula-smart-ai-git-main-gpuda.vercel.app"
+extra_origins_raw = os.getenv("CORS_ORIGINS", "").strip()
+EXTRA_ORIGINS = [o.strip() for o in extra_origins_raw.split(",") if o.strip()]
+
+# Regex koji pokriva Vercel preview/prod domene (po defaultu ukljucen)
+# Ako ne zelis regex, stavi CORS_ORIGIN_REGEX="" u env.
+CORS_ORIGIN_REGEX = os.getenv("CORS_ORIGIN_REGEX", r"https://.*\.vercel\.app").strip() or None
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-    ],
+    allow_origins=[*DEFAULT_ORIGINS, *EXTRA_ORIGINS],
+    allow_origin_regex=CORS_ORIGIN_REGEX,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -393,16 +409,11 @@ def chat_router(req: UiChatRequest):
     - mode="web":    non-stream agent odgovor iz /chat (LangGraph + web_search)
     """
     if req.mode == "web":
-        # koristi agent (non-stream)
         return chat(ChatRequest(message=req.message, history=req.history))
 
     if req.mode == "rag":
-        # koristi RAG streaming
-        return rag_stream(
-            RagChatRequest(message=req.message, top_k=req.top_k, history=req.history)
-        )
+        return rag_stream(RagChatRequest(message=req.message, top_k=req.top_k, history=req.history))
 
-    # default: normal streaming
     return chat_stream(ChatRequest(message=req.message, history=req.history))
 
 
